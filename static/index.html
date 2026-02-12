@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibe Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #0a0a0f;
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: #fff;
+        }
+
+        .calculator {
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            border-radius: 24px;
+            padding: 32px;
+            width: 360px;
+            box-shadow:
+                0 25px 60px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .calculator h1 {
+            text-align: center;
+            font-size: 18px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 24px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .display {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .display .operation {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.4);
+            min-height: 20px;
+            text-align: right;
+        }
+
+        .display .result {
+            font-size: 42px;
+            font-weight: 300;
+            text-align: right;
+            color: #fff;
+            min-height: 50px;
+            line-height: 50px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .input-group input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 14px 16px;
+            color: #fff;
+            font-size: 18px;
+            text-align: center;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            border-color: rgba(99, 102, 241, 0.6);
+            background: rgba(99, 102, 241, 0.08);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.1);
+        }
+
+        .input-group input::placeholder {
+            color: rgba(255, 255, 255, 0.25);
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 16px;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-add:active {
+            transform: translateY(0);
+        }
+
+        .btn-multiply {
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+        }
+
+        .btn-multiply:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-multiply:active {
+            transform: translateY(0);
+        }
+
+        .status {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .status .dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #22c55e;
+            margin-right: 6px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h1>Vibe Calculator</h1>
+
+        <div class="display">
+            <div class="operation" id="operation"></div>
+            <div class="result" id="result">0</div>
+        </div>
+
+        <div class="input-group">
+            <input type="number" id="num-a" placeholder="A" />
+            <input type="number" id="num-b" placeholder="B" />
+        </div>
+
+        <div class="buttons">
+            <button class="btn btn-add" onclick="calculate('add')">A + B</button>
+            <button class="btn btn-multiply" onclick="calculate('multiply')">A &times; B</button>
+        </div>
+
+        <div class="status">
+            <span class="dot"></span> API Connected
+        </div>
+    </div>
+
+    <script>
+        async function calculate(op) {
+            const a = document.getElementById('num-a').value || 0;
+            const b = document.getElementById('num-b').value || 0;
+            const opSymbol = op === 'add' ? '+' : '×';
+
+            document.getElementById('operation').textContent = `${a} ${opSymbol} ${b}`;
+            document.getElementById('result').textContent = '...';
+
+            try {
+                const response = await fetch(`/${op}/${a}/${b}`);
+                const data = await response.json();
+                document.getElementById('result').textContent = data.result;
+            } catch (error) {
+                document.getElementById('result').textContent = 'Error';
+            }
+        }
+    </script>
+</body>
+</html>
