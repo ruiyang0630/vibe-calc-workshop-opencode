@@ -16,43 +16,44 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background: #0a0a0f;
+            background: #121212;
             font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            color: #fff;
+            color: #e0e0e0;
         }
 
         .calculator {
-            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            background: linear-gradient(145deg, #2a2a2e, #1e1e22);
             border-radius: 24px;
             padding: 32px;
             width: 360px;
+            overflow: hidden;
             box-shadow:
-                0 25px 60px rgba(0, 0, 0, 0.5),
-                0 0 0 1px rgba(255, 255, 255, 0.05),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+                0 25px 60px rgba(0, 0, 0, 0.6),
+                0 0 0 1px rgba(255, 255, 255, 0.06),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
         }
 
         .calculator h1 {
             text-align: center;
             font-size: 18px;
             font-weight: 500;
-            color: rgba(255, 255, 255, 0.6);
+            color: rgba(255, 255, 255, 0.5);
             margin-bottom: 24px;
             letter-spacing: 2px;
             text-transform: uppercase;
         }
 
         .display {
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(0, 0, 0, 0.3);
             border-radius: 16px;
             padding: 20px 24px;
             margin-bottom: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.06);
         }
 
         .display .operation {
             font-size: 14px;
-            color: rgba(255, 255, 255, 0.4);
+            color: rgba(255, 255, 255, 0.35);
             min-height: 20px;
             text-align: right;
         }
@@ -61,7 +62,7 @@
             font-size: 42px;
             font-weight: 300;
             text-align: right;
-            color: #fff;
+            color: #e0e0e0;
             min-height: 50px;
             line-height: 50px;
             overflow: hidden;
@@ -76,21 +77,29 @@
 
         .input-group input {
             flex: 1;
+            min-width: 0;
             background: rgba(255, 255, 255, 0.06);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
             padding: 14px 16px;
-            color: #fff;
+            color: #e0e0e0;
             font-size: 18px;
             text-align: center;
             outline: none;
             transition: all 0.3s ease;
+            -moz-appearance: textfield;
+        }
+
+        .input-group input::-webkit-outer-spin-button,
+        .input-group input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
         }
 
         .input-group input:focus {
-            border-color: rgba(99, 102, 241, 0.6);
-            background: rgba(99, 102, 241, 0.08);
-            box-shadow: 0 0 20px rgba(99, 102, 241, 0.1);
+            border-color: rgba(160, 160, 160, 0.5);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 20px rgba(160, 160, 160, 0.08);
         }
 
         .input-group input::placeholder {
@@ -115,14 +124,15 @@
         }
 
         .btn-add {
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
-            color: #fff;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+            background: linear-gradient(135deg, #555, #3a3a3a);
+            color: #e0e0e0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
 
         .btn-add:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+            background: linear-gradient(135deg, #666, #4a4a4a);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
         }
 
         .btn-add:active {
@@ -130,14 +140,15 @@
         }
 
         .btn-multiply {
-            background: linear-gradient(135deg, #f59e0b, #ef4444);
-            color: #fff;
-            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+            background: linear-gradient(135deg, #4a4a4a, #333);
+            color: #e0e0e0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
 
         .btn-multiply:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+            background: linear-gradient(135deg, #5a5a5a, #444);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
         }
 
         .btn-multiply:active {
@@ -187,11 +198,18 @@
         </div>
 
         <div class="status">
-            <span class="dot"></span> API Connected
+            <span class="dot" id="status-dot"></span> <span id="status-text">API Connected</span>
         </div>
     </div>
 
     <script>
+        function setStatus(ok) {
+            const dot = document.getElementById('status-dot');
+            const text = document.getElementById('status-text');
+            dot.style.background = ok ? '#22c55e' : '#ef4444';
+            text.textContent = ok ? 'API Connected' : 'API Error';
+        }
+
         async function calculate(op) {
             const a = document.getElementById('num-a').value || 0;
             const b = document.getElementById('num-b').value || 0;
@@ -204,8 +222,10 @@
                 const response = await fetch(`/${op}/${a}/${b}`);
                 const data = await response.json();
                 document.getElementById('result').textContent = data.result;
+                setStatus(true);
             } catch (error) {
                 document.getElementById('result').textContent = 'Error';
+                setStatus(false);
             }
         }
     </script>
